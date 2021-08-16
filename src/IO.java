@@ -3,12 +3,10 @@ import java.util.Scanner;
 
 public class IO {
 
-    private final Register register = new Register();
+    private final Registry registry = new Registry();
 
-
-    //SCANNER methods_________________________________________________________________
-
-    private static final Scanner INPUT = new Scanner(System.in);
+    //SCANNER methods
+    private final static Scanner INPUT = new Scanner(System.in);
 
     public String userInputString(String askInput) {
         System.out.print(askInput);
@@ -75,7 +73,7 @@ public class IO {
                     giveDog();
                     break;
                 case "list owners":
-                    register.listOwners();
+                    registry.listOwners();
                     break;
                 case "remove owner":
                     removeOwner();
@@ -90,13 +88,13 @@ public class IO {
                     listBids();
                     break;
                 case "list auctions":
-                    register.listAuctions();
+                    registry.listAuctions();
                     break;
                 case "close auction":
                     closeAuction();
                     break;
                 case "list commands":
-                    register.printCommands();
+                    registry.printCommands();
                     break;
                 case "exit":
                     cmd = "exit";
@@ -108,7 +106,7 @@ public class IO {
         }
     }
 
-    //DOG IO_________________________________________________________________
+    //DOG IO
     public void registerNewDog() {
         String name = userInputString("Name?> ");
         String breed = userInputString("Breed?> ");
@@ -116,93 +114,79 @@ public class IO {
         int weight = userInputInt("Weight?> ");
 
         var dog = new Dog(name, breed, age, weight);
-        register.registerDog(name, dog);
+        registry.registerDog(name, dog);
     }
 
     public void listDogs() {
-        if (register.dogListEmpty())
+        if (registry.dogListEmpty())
             System.out.println("Error: no registered dogs");
         else {
             double tailLength = userInputDouble("Smallest tail length to display?> ");
-            register.listDogs(tailLength);
+            registry.listDogs(tailLength);
         }
     }
 
     public void increaseAge() {
         String nameDog = userInputString("Enter the name of the dog?> ");
-        register.increaseDogAge(nameDog);
+        registry.increaseDogAge(nameDog);
     }
 
     public void removeDog() {
         String dogName = userInputString("Enter the name of the dog?>");
-        register.removeDogs(dogName);
+        registry.removeDogs(dogName);
     }
 
     public void giveDog() {
-        Dog dog = register.findDogByName(userInputString("Enter the name of the dog?>"));
-        if(!register.checkIfDogHasOwner(dog)){
+        Dog dog = registry.findDogByName(userInputString("Enter the name of the dog?>"));
+        if(!registry.checkIfDogHasOwner(dog)){
             setDogOwner(dog);
         }
     }
 
     private void setDogOwner(Dog dog) {
-        Owner owner = register.findOwnerByName(userInputString("Enter the name of the new owner?>"));
-        register.setOwner(dog, owner);
+        Owner owner = registry.findOwnerByName(userInputString("Enter the name of the new owner?>"));
+        registry.setOwner(dog, owner);
     }
 
-    //IO Owner_________________________________________________________________
+    //IO Owner
 
     public void registerNewOwner() {
         String name = userInputString("Name?>");
-        register.registerOwner(name);
+        registry.registerOwner(name);
     }
 
     public void removeOwner() {
         String nameOwner = userInputString("Enter the name from the user?> ");
-        register.removeOwners(nameOwner);
+        registry.removeOwners(nameOwner);
     }
 
-    //IO Auction_________________________________________________________________
+    //IO Auction
 
     public void startAuction() {
         String nameDogToAuction = userInputString("Enter the name of the dog?>");
-        register.startAuction(nameDogToAuction);
+        registry.startAuction(nameDogToAuction);
     }
 
     public Auction findAuctionByDog(Dog dogInAuction) {
-        return register.findAuctionByDog(dogInAuction);
-    }
-
-    private void handleAuction(String nameUser, Owner user, Dog dog, Auction auction) {
-        double bidByUser = 0;
-        double minBidAmount = register.getTopBidAmount() + 1;
-        while (bidByUser < minBidAmount) {
-            bidByUser = userInputDouble("Amount to bid (minimum bid. " + minBidAmount + ")?>");
-            if (bidByUser >= minBidAmount) {
-                register.addBidToList(user, bidByUser);
-                System.out.println("Bidding owner " + nameUser + " has placed a bid of " + bidByUser + "kr on " + dog.getName() + " in auction nr " + auction.getAuctionNumber());
-            } else {
-                System.out.println("Error: too low bid! Minimum bid = " + minBidAmount);
-            }
-        }
+        return registry.findAuctionByDog(dogInAuction);
     }
 
     public void closeAuction() {
         String nameDog = userInputString("Enter the name of the dog?>");
-        register.closeAuctions(nameDog);
+        registry.closeAuctions(nameDog);
     }
 
 
     //IO Bid_________________________________________________________________
     public void makeBid() {
         String nameUser = userInputString("Enter the name of the bidding owner?>");
-        Owner user = register.findOwnerByName(nameUser);
+        Owner user = registry.findOwnerByName(nameUser);
         if (user == null) {
             System.out.println("Error: The owner is not registered");
             return;
         }
         String nameDog = userInputString("Enter the name of the dog?>");
-        Dog dog = register.findDogByName(nameDog);
+        Dog dog = registry.findDogByName(nameDog);
         if (dog == null) {
             System.out.println("Error: no such dog in register");
             return;
@@ -216,16 +200,31 @@ public class IO {
             System.out.println("Error: no such auction");
             return;
         }
-        handleAuction(nameUser, user, dog, auction);
+        executeBid(user, dog, auction);
     }
+
+    private void executeBid(Owner owner, Dog dog, Auction auction) {
+        double bidByUser = 0;
+        double minBidAmount = registry.getTopBidAmount() + 1;
+        while (bidByUser < minBidAmount) {
+            bidByUser = userInputDouble("Amount to bid (minimum bid. " + minBidAmount + ")?>");
+            if (bidByUser >= minBidAmount) {
+                registry.addBidToList(owner, bidByUser);
+                System.out.println("Bidding owner " + owner.getName() + " has placed a bid of " + bidByUser + "kr on " + dog.getName() + " in auction nr " + auction.getAuctionNumber());
+            } else {
+                System.out.println("Error: too low bid! Minimum bid = " + minBidAmount);
+            }
+        }
+    }
+
 
     public void listBids() {
         String dogName = userInputString("Enter the name of the dog?>");
-        register.bidList(dogName);
+        registry.bidList(dogName);
     }
 
 
-    //DEMO setup_________________________________________________________________
+    //DEMO setup
 
     public void testingSetup() {
         Dog fido = new Dog("Fido", "Border Collie", 1, 18);
@@ -237,28 +236,28 @@ public class IO {
         Dog bosse = new Dog("Bosse", "Amstaff", 3, 7);
         Dog elli = new Dog("Ellie", "Siberian Husky", 6, 24);
 
-        register.addDog(floyd);
-        register.addDog(ellie);
-        register.addDog(dexter);
-        register.addDog(fido);
-        register.addDog(diego);
-        register.addDog(hera);
-        register.addDog(bosse);
-        register.addDog(elli);
+        registry.addDog(floyd);
+        registry.addDog(ellie);
+        registry.addDog(dexter);
+        registry.addDog(fido);
+        registry.addDog(diego);
+        registry.addDog(hera);
+        registry.addDog(bosse);
+        registry.addDog(elli);
 
         Owner kim = new Owner("Kim");
         Owner peter = new Owner("Peter");
         Owner katta = new Owner("Katta");
         Owner jamal = new Owner("Jamal");
 
-        register.addOwner(kim);
-        register.addOwner(peter);
-        register.addOwner(katta);
-        register.addOwner(jamal);
+        registry.addOwner(kim);
+        registry.addOwner(peter);
+        registry.addOwner(katta);
+        registry.addOwner(jamal);
 
         System.out.println("Here are the pre-loaded auctions:");
-        register.startAuction(ellie.getName());
-        register.startAuction(fido.getName());
+        registry.startAuction(ellie.getName());
+        registry.startAuction(fido.getName());
         System.out.println("------------------------------");
         System.out.println();
     }

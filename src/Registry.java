@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Register {
+public class Registry {
 
     private final List<Auction> auctionList = new ArrayList<>();
     private final List<Dog> dogsList = new ArrayList<>();
@@ -17,7 +17,7 @@ public class Register {
             "list auctions", "close auction", "list commands", "exit");
 
 
-    //DOG methods_________________________________________________________________
+    //DOG methods
     public void addDog(Dog dog) {
         dogsList.add(dog);
     }
@@ -120,7 +120,7 @@ public class Register {
     }
 
 
-    // OWNER methods_________________________________________________________________
+    // OWNER methods
     public Owner findOwnerByName(String ownerName) {
         for (Owner owner : ownersList) {
             if (owner.getName().equals(ownerName)) {
@@ -180,7 +180,7 @@ public class Register {
     }
 
 
-    // AUCTION methods_________________________________________________________________
+    // AUCTION methods
     public void listAuctions() {
         if (auctionList.isEmpty()) {
             System.out.println("Error: no ongoing auctions");
@@ -261,7 +261,7 @@ public class Register {
         }
     }
 
-    //BID methods_________________________________________________________________
+    //BID methods
     public void addBidToList(Owner owner, double bidAmount) {
         if (bidAmount > getTopBidAmount()) {
             bidsList.removeIf(bid -> bid.getBiddingOwner().equals(owner));
@@ -320,7 +320,7 @@ public class Register {
         }
     }
 
-    // PRINT Commands_________________________________________________________________
+    // PRINT Commands
     public void printCommands() {
         System.out.println("Here are your available commands: ");
         for (String cmd : commandList) {
@@ -330,7 +330,7 @@ public class Register {
 }
 
 
-//MANUAL array sorting_________________________________________________________________
+//MANUAL array sorting
 
        /* for (int i = 1; i < arrayList.size(); i++) {
 
